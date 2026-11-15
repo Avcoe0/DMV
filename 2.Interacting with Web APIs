@@ -1,0 +1,191 @@
+
+import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1. API DETAILS
+API_KEY = "YOUR_API_KEY"
+CITY = "Pune"
+
+url = f"https://api.openweathermap.org/data/2.5/forecast?q={CITY}&appid={API_KEY}&units=metric"
+
+# 2. FETCH DATA FROM API
+response = requests.get(url)
+data = response.json()
+
+if response.status_code == 200:
+
+    records = []
+
+    # 3. EXTRACT WEATHER DATA
+    for item in data["list"]:
+        records.append({
+            "Date": item["dt_txt"],
+            "Temperature": item["main"]["temp"],
+            "Humidity": item["main"]["humidity"],
+            "Pressure": item["main"]["pressure"],
+            "Wind Speed": item["wind"]["speed"],
+            "Rain": item.get("rain", {}).get("3h", 0)
+        })
+
+    # 4. CREATE DATAFRAME
+    weather_df = pd.DataFrame(records)
+
+    weather_df["Date"] = pd.to_datetime(weather_df["Date"])
+
+    print("Weather Data")
+    print(weather_df.head())
+
+    # 5. DATA INFORMATION
+    print("\nData Information")
+    weather_df.info()
+
+    print("\nMissing Values")
+    print(weather_df.isnull().sum())
+
+    # 6. DATA CLEANING
+    weather_df.fillna(0, inplace=True)
+    weather_df.drop_duplicates(inplace=True)
+
+    print("\nCleaned Data")
+    print(weather_df.head())
+
+    # 7. STATISTICS
+    print("\nStatistics")
+
+    print("Average Temperature:",
+          weather_df["Temperature"].mean())
+
+    print("Maximum Temperature:",
+          weather_df["Temperature"].max())
+
+    print("Minimum Temperature:",
+          weather_df["Temperature"].min())
+
+    print("Average Humidity:",
+          weather_df["Humidity"].mean())
+
+    print("Average Wind Speed:",
+          weather_df["Wind Speed"].mean())
+
+    # 8. DAILY WEATHER SUMMARY
+    daily_data = weather_df.set_index("Date").resample("D").agg({
+        "Temperature": "mean",
+        "Humidity": "mean",
+        "Wind Speed": "mean",
+        "Rain": "sum"
+    })
+
+    print("\nDaily Weather Summary")
+    print(daily_data)
+
+    # 9. TEMPERATURE LINE GRAPH
+    plt.figure(figsize=(10, 5))
+    plt.plot(weather_df["Date"],
+             weather_df["Temperature"],
+             marker="o")
+
+    plt.title("Temperature Variation")
+    plt.xlabel("Date")
+    plt.ylabel("Temperature (°C)")
+    plt.xticks(rotation=45)
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+    # 10. DAILY RAINFALL BAR GRAPH
+    plt.figure(figsize=(8, 5))
+    plt.bar(daily_data.index, daily_data["Rain"])
+
+    plt.title("Daily Rainfall")
+    plt.xlabel("Date")
+    plt.ylabel("Rainfall (mm)")
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    plt.show()
+
+    # 11. TEMPERATURE VS HUMIDITY
+    plt.figure(figsize=(8, 5))
+    plt.scatter(weather_df["Temperature"],
+                weather_df["Humidity"])
+
+    plt.title("Temperature vs Humidity")
+    plt.xlabel("Temperature (°C)")
+    plt.ylabel("Humidity (%)")
+    plt.show()
+
+    # 12. CORRELATION HEATMAP
+    plt.figure(figsize=(7, 5))
+
+    sns.heatmap(
+        weather_df[[
+            "Temperature", "Humidity", "Pressure",
+            "Wind Speed", "Rain"
+        ]].corr(),
+        annot=True
+    )
+
+    plt.title("Weather Correlation Heatmap")
+    plt.show()
+
+    # 13. GEOGRAPHICAL INFORMATION
+    latitude = data["city"]["coord"]["lat"]
+    longitude = data["city"]["coord"]["lon"]
+
+    print("\nGeographical Information")
+    print("City:", CITY)
+    print("Latitude:", latitude)
+    print("Longitude:", longitude)
+
+else:
+    print("Error:", data)
+
+
+
+Practical No. 2 – Interacting with Web APIs
+Explanation of Program
+1. Import Libraries: Pandas is used for data handling, Requests for API connection and Matplotlib/Seaborn for visualization.
+
+2. API Connection: The OpenWeatherMap API is used to fetch weather forecast data for Pune.
+
+3. Fetch Data: requests.get() sends a request to the API and receives weather data.
+
+4. Convert JSON Data: The API response is converted into JSON format using .json().
+
+5. Create DataFrame: Weather details like temperature, humidity, pressure, wind speed and rainfall are stored in a DataFrame.
+
+6. Convert Date: pd.to_datetime() converts date and time values into datetime format.
+
+7. Check Data: info() and isnull().sum() are used to check dataset information and missing values.
+
+8. Clean Data: fillna() handles missing values, and drop_duplicates() removes duplicate records.
+
+9. Statistical Analysis: mean(), max(), min() and describe() are used to analyze weather data.
+
+10. Daily Analysis: resample('D') groups weather records by day and calculates daily statistics.
+
+11. Create Graphs: Line graph, bar graph, scatter plot and heatmap are used to visualize weather information.
+
+12. Location Details: Latitude and longitude show the geographical location of the selected city.
+Conclusion
+Successfully collected weather forecast data using a Web API, processed it using Pandas and visualized the weather information using graphs.
+
+Important Functions to Remember
+Function	Use
+read_csv()	Read CSV file
+read_excel()	Read Excel file
+read_json()	Read JSON file
+head()	Display first 5 rows
+info()	Display dataset information
+isnull()	Check missing values
+drop_duplicates()	Remove duplicate records
+fillna()	Fill missing values
+concat()	Combine datasets
+groupby()	Group data
+requests.get()	Send API request
+.json()	Convert response into JSON
+resample()	Group time-based data
+plt.show()	Display graph
+
+tion
