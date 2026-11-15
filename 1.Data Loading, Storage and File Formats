@@ -1,4 +1,3 @@
-
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -105,28 +104,105 @@ plt.show()
 
 
 
-Practical No. 1 – Data Loading, Storage and File Formats
-Explanation of Program
-1. Import Libraries: Pandas is used for data handling, and Matplotlib is used for creating graphs.
+import pandas as pd – Imports the Pandas library.
+- Pandas is used for data loading, cleaning, manipulation and analysis.
+- pd is the short name (alias) of Pandas.
 
-2. Load Dataset: read_csv(), read_excel() and read_json() are used to load sales data from different file formats.
+import matplotlib.pyplot as plt – Imports the Pyplot module.
+- It is used to create graphs and charts.
+- plt is the short name of Pyplot.
 
-3. Display Data: head() displays the first five records of the dataset.
+We load three different file formats into Pandas DataFrames.
+1. pd.read_csv() – Reads data from a CSV file.
+2. pd.read_excel() – Reads data from an Excel file.
+3. pd.read_json() – Reads data from a JSON file.
+What is a DataFrame?
+A DataFrame is a two-dimensional table containing rows and columns, just like an Excel spreadsheet.
 
-4. Check Dataset: info() displays column names, data types and dataset information.
+- print() – Displays the output.
+- \n – Moves the output to a new line.
+- .head() – Displays the first 5 rows of a dataset.
+Viva point: If we write head(10), it displays the first 10 rows.
 
-5. Check Missing Values: isnull().sum() checks the number of missing values in each column.
+info() displays the basic information about a dataset.
+1. Total number of rows.
+2. Column names.
+3. Number of non-null values.
+4. Data types.
+5. Memory usage.
 
-6. Remove Duplicates: drop_duplicates() removes repeated records.
+isnull() – Checks whether values are missing.
+.sum() – Counts the missing values in each column.
 
-7. Handle Missing Values: fillna(0) replaces missing values with zero.
+.drop_duplicates() – Removes repeated or duplicate rows.
+inplace=True – Directly modifies the original DataFrame without creating a new one.
 
-8. Combine Data: concat() combines multiple datasets into one DataFrame.
+.fillna(0) – Replaces all missing values (NaN) with 0.
+inplace=True – Updates the original dataset.
 
-9. Calculate Total: A new column is created by multiplying Quantity by Price.
+- pd.concat() – Combines multiple DataFrames.
+- [csv_data, excel_data, json_data] – Specifies the three datasets to combine.
+- ignore_index=True – Creates new continuous row numbers after combining.
+- sales – Stores the final merged dataset.
+Important: All three datasets should have compatible column names and structures for meaningful merging
 
-10. Data Analysis: describe(), sum(), mean() and groupby() are used to calculate statistics and analyze sales.
+- sales["Total"] – Creates a new column called Total.
+- sales["Quantity"] – Accesses the Quantity column.
+- sales["Price"] – Accesses the Price column.
+- * – Multiplies quantity by price.
+Formula:
+text{Total Sales} = \text{Quantity} \times \text{Price}
 
-11. Data Visualization: Bar, pie and box plots are created to understand sales data graphically.
-Conclusion
-Successfully loaded, cleaned, combined and analyzed sales data from CSV, Excel and JSON files.
+.describe() – Calculates statistical information about numerical columns.
+It displays:
+1. count – Number of values.
+2. mean – Average value.
+3. std – Standard deviation.
+4. min – Minimum value.
+5. 25% – First quartile.
+6. 50% – Median.
+7. 75% – Third quartile.
+8. max – Maximum value.
+
+First statement:
+- .sum() – Calculates the sum of all values in the Total column.
+- total_sales – Stores the total sales amount.
+Second statement:
+- .mean() – Calculates the average of all values in the Total column.
+- average_order – Stores the average sales amount per row.
+Formulas:
+text{Total Sales} = \sum \text{Total}
+
+text{Average} = \frac{\text{Total Sales}}{\text{Number of Rows}}
+
+.groupby("Category") – Groups the records according to their category.
+["Total"] – Selects the Total column.
+.sum() – Calculates the total sales of each category.
+category_sales – Stores the result.
+
+    - ales["Category"] – Selects the Category column.
+- .value_counts() – Counts how many times each category appears.
+- category_distribution – Stores the category counts.
+Difference:
+- groupby() calculates total sales for each category.
+- value_counts() counts the number of records in each category.
+
+plt.figure(figsize=(8, 5)) – Creates a graph with width 8 and height 5.
+category_sales.plot(kind="bar") – Creates a bar chart.
+plt.title() – Adds the title of the graph.
+plt.xlabel() – Gives a label to the X-axis.
+plt.ylabel() – Gives a label to the Y-axis.
+plt.show() – Displays the graph.
+
+plt.figure(figsize=(6, 6)) – Creates a square figure.
+.plot(kind="pie") – Creates a pie chart.
+autopct="%1.1f%%" – Displays percentage values with one decimal place.
+plt.title() – Adds the chart title.
+plt.ylabel("") – Removes the Y-axis label.
+plt.show() – Displays the pie chart
+
+plt.figure(figsize=(6, 4)) – Creates a figure of width 6 and height 4.
+sales.boxplot(column="Total") – Creates a box plot using the Total column.
+plt.title() – Adds the title.
+plt.ylabel() – Labels the Y-axis.
+plt.show() – Displays the graph.
