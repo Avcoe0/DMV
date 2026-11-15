@@ -1,0 +1,138 @@
+
+import pandas as pd
+import numpy as np
+
+# 1. Load Dataset
+df = pd.read_csv("house_data.csv")
+
+print("Original Data:")
+print(df.head())
+
+# 2. Clean Column Names
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.lower()
+    .str.replace(" ", "_")
+    .str.replace(r"[^a-zA-Z0-9_]", "", regex=True)
+)
+
+print("\nColumn Names:")
+print(df.columns.tolist())
+
+# 3. Check Missing Values
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# 4. Handle Missing Values
+numeric_cols = df.select_dtypes(include=np.number).columns
+
+for col in numeric_cols:
+    df[col] = df[col].fillna(df[col].median())
+
+categorical_cols = df.select_dtypes(include="object").columns
+
+for col in categorical_cols:
+    df[col] = df[col].fillna(df[col].mode()[0])
+
+print("\nMissing Values After Cleaning:")
+print(df.isnull().sum())
+
+# 5. Filter Data
+filtered_data = df[df["price"] > 500000]
+
+print("\nHouses with Price Greater Than 500000:")
+print(filtered_data.head())
+
+# 6. Calculate Average Price
+print("\nAverage House Price:")
+print(df["price"].mean())
+
+# 7. Group Data by Bedrooms
+print("\nAverage Price by Bedrooms:")
+print(df.groupby("bedrooms")["price"].mean())
+
+# 8. Detect and Remove Outliers using IQR
+Q1 = df["price"].quantile(0.25)
+Q3 = df["price"].quantile(0.75)
+
+IQR = Q3 - Q1
+
+lower_limit = Q1 - 1.5 * IQR
+upper_limit = Q3 + 1.5 * IQR
+
+print("\nLower Limit:", lower_limit)
+print("Upper Limit:", upper_limit)
+
+df_clean = df[
+    (df["price"] >= lower_limit) &
+    (df["price"] <= upper_limit)
+]
+
+print("\nRecords Before Removing Outliers:", len(df))
+print("Records After Removing Outliers:", len(df_clean))
+
+# 9. Encode Categorical Data
+categorical_cols = df_clean.select_dtypes(
+    include="object"
+).columns
+
+df_clean = pd.get_dummies(
+    df_clean,
+    columns=categorical_cols,
+    drop_first=True
+)
+
+print("\nEncoded Data:")
+print(df_clean.head())
+
+# 10. Save Cleaned Dataset
+df_clean.to_csv("RealEstate_Prices_Final.csv", index=False)
+
+print("\nData Wrangling Completed Successfully!")
+
+
+
+
+
+Explanation
+1. Import Libraries: Pandas is used for data handling and NumPy for numerical operations.
+
+2. Load Dataset: read_csv() loads the house price dataset.
+
+3. Display Data: head() displays the first five records.
+
+4. Clean Column Names: Removes extra spaces, converts names to lowercase and replaces spaces with underscores.
+
+5. Check Missing Values: isnull().sum() identifies missing values.
+
+6. Handle Missing Values: fillna() replaces missing numerical values with the median and categorical values with the mode.
+
+7. Filter Data: Selects houses having a price greater than 500000.
+
+8. Calculate Average Price: mean() calculates the average house price.
+
+9. Group Data: groupby() calculates the average house price according to the number of bedrooms.
+
+10. Detect Outliers: The IQR method calculates the lower and upper limits to identify outliers.
+
+11. Remove Outliers: Keeps only house records within the calculated price limits.
+
+12. Encode Data: get_dummies() converts categorical values into numerical columns.
+
+13. Save Dataset: to_csv() saves the final cleaned dataset.
+3. Conclusion
+Successfully performed data wrangling on the real estate dataset by cleaning column names, handling missing values, filtering data, grouping records, removing outliers and encoding categorical data.
+4. Important Functions
+Function	Purpose
+read_csv()	Load dataset
+head()	Display first 5 records
+isnull()	Check missing values
+fillna()	Fill missing values
+median()	Find middle value
+mode()	Find most frequent value
+mean()	Calculate average
+groupby()	Group records
+quantile()	Calculate quartiles
+get_dummies()	Convert categories into numbers
+to_csv()	Save dataset
