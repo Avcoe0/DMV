@@ -1,0 +1,134 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+
+# 1. Load Dataset
+df = pd.read_csv("Telco-Customer-Churn.csv")
+print("Dataset Loaded Successfully!")
+print(df.head())
+print(df.shape)
+print(df.info())
+
+# 2. Check Missing Values
+print(df.isnull().sum())
+
+# 3. Convert TotalCharges into Numeric
+df["TotalCharges"] = pd.to_numeric(
+    df["TotalCharges"], errors="coerce"
+)
+
+# 4. Remove Extra Spaces
+for col in df.select_dtypes(include="object").columns:
+    df[col] = df[col].astype(str).str.strip()
+
+# 5. Handle Missing Values
+for col in df.select_dtypes(include=np.number).columns:
+    df[col] = df[col].fillna(df[col].median())
+
+for col in df.select_dtypes(include="object").columns:
+    df[col] = df[col].fillna(df[col].mode()[0])
+
+# 6. Remove Duplicate Records
+df.drop_duplicates(inplace=True)
+
+# 7. Convert Churn into Numeric
+df["Churn"] = df["Churn"].replace({"Yes": 1, "No": 0})
+df["Churn"] = pd.to_numeric(df["Churn"], errors="coerce")
+df.dropna(subset=["Churn"], inplace=True)
+
+# 8. Feature Engineering
+df["AvgMonthlySpend"] = df["TotalCharges"] / (df["tenure"] + 1)
+
+df["LongTermCustomer"] = np.where(df["tenure"] >= 24, 1, 0)
+
+# 9. Handle Outliers using IQR
+numeric_cols = ["tenure", "MonthlyCharges", "TotalCharges"]
+
+for col in numeric_cols:
+    Q1 = df[col].quantile(0.25)
+    Q3 = df[col].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    df[col] = df[col].clip(lower, upper)
+
+# 10. Remove Customer ID
+df.drop("customerID", axis=1, inplace=True)
+
+# 11. Encode Categorical Columns
+categorical_cols = df.select_dtypes(include="object").columns
+
+for col in categorical_cols:
+    encoder = LabelEncoder()
+    df[col] = encoder.fit_transform(df[col])
+
+# 12. Split Features and Target
+X = df.drop("Churn", axis=1)
+y = df["Churn"]
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.20, random_state=42, stratify=y
+)
+
+# 13. Feature Scaling
+scale_cols = [
+    "tenure", "MonthlyCharges",
+    "TotalCharges", "AvgMonthlySpend"
+]
+
+scaler = StandardScaler()
+
+X_train[scale_cols] = scaler.fit_transform(X_train[scale_cols])
+X_test[scale_cols] = scaler.transform(X_test[scale_cols])
+
+# 14. Display Results
+print("Training Data Shape:", X_train.shape)
+print("Testing Data Shape:", X_test.shape)
+
+# 15. Save Cleaned Dataset
+df.to_csv("Telecom_Customer_Churn_Cleaned.csv", index=False)
+
+print("Cleaned Dataset Saved Successfully!")
+
+
+
+
+Practical – Data Cleaning and Preparation
+Short Explanation of Program
+1. Import Libraries: Pandas and NumPy are used for data handling. Scikit-learn functions are used for encoding, scaling and splitting data.
+
+2. Load Dataset: read_csv() loads the Telco Customer Churn dataset.
+
+3. Display Dataset: head(), shape, columns and info() display the dataset records, size, column names and information.
+
+4. Check Missing Values: isnull().sum() checks missing values in each column.
+
+5. Convert Data Type: pd.to_numeric() converts the TotalCharges column into numeric format.
+
+6. Remove Extra Spaces: strip() removes unwanted spaces from text values.
+
+7. Handle Missing Values: fillna() fills missing numeric values with the median and text values with the mode.
+
+8. Remove Duplicates: duplicated() finds duplicate records and drop_duplicates() removes them.
+
+9. Convert Churn Values: Yes is converted to 1 and No is converted to 0.
+
+10. Feature Engineering: Two new columns are created:
+- AvgMonthlySpend: Calculates average monthly spending.
+- LongTermCustomer: Identifies customers with 24 or more months of tenure.
+11. Handle Outliers: The IQR method detects extreme values, and clip() limits them within the calculated range.
+
+12. Remove Unnecessary Column: drop() removes the customerID column because it is not useful for prediction.
+
+13. Encode Categorical Data: LabelEncoder() converts text categories into numerical values.
+
+14. Separate Features and Target: X contains input features, and y contains the Churn output.
+
+15. Split Dataset: train_test_split() divides data into 80% training data and 20% testing data.
+
+16. Feature Scaling: StandardScaler() scales numerical columns so they have a comparable scale.
+
+17. Display Shapes: Training and testing data shapes are displayed.
+
+18. Save Cleaned Dataset: to_csv() saves the cleaned dataset into a new CSV file.
