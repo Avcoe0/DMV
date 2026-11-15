@@ -1,0 +1,139 @@
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 1. Load Dataset
+df = pd.read_csv("Superstore.csv", encoding="latin1")
+
+# 2. Display Dataset Information
+print("First 5 Records:")
+print(df.head())
+
+print("\nDataset Shape:")
+print(df.shape)
+
+print("\nColumn Names:")
+print(df.columns.tolist())
+
+print("\nDataset Information:")
+df.info()
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# 3. Clean Column Names
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.lower()
+    .str.replace(" ", "_")
+)
+
+print("\nCleaned Column Names:")
+print(df.columns.tolist())
+
+# 4. Calculate Total Sales by Region
+region_sales = df.groupby("region")["sales"].sum()
+
+print("\nTotal Sales by Region:")
+print(region_sales)
+
+# 5. Bar Chart
+plt.figure(figsize=(8, 5))
+region_sales.plot(kind="bar")
+plt.title("Total Sales by Region")
+plt.xlabel("Region")
+plt.ylabel("Sales")
+plt.xticks(rotation=0)
+plt.show()
+
+# 6. Pie Chart
+plt.figure(figsize=(7, 7))
+region_sales.plot(kind="pie", autopct="%1.1f%%")
+plt.title("Sales Distribution by Region")
+plt.ylabel("")
+plt.show()
+
+# 7. Sort Regions by Sales
+top_regions = region_sales.sort_values(ascending=False)
+
+print("\nTop Performing Regions:")
+print(top_regions)
+
+# 8. Sales by Region and Category
+region_category_sales = df.groupby(
+    ["region", "category"]
+)["sales"].sum()
+
+print("\nSales by Region and Category:")
+print(region_category_sales)
+
+# 9. Create Pivot Table
+pivot_data = df.pivot_table(
+    values="sales",
+    index="region",
+    columns="category",
+    aggfunc="sum",
+    fill_value=0
+)
+
+print("\nRegion and Category Sales:")
+print(pivot_data)
+
+# 10. Display Grouped Bar Chart
+pivot_data.plot(kind="bar", figsize=(10, 6))
+
+plt.title("Sales by Region and Category")
+plt.xlabel("Region")
+plt.ylabel("Sales")
+plt.xticks(rotation=0)
+plt.legend(title="Category")
+plt.show()
+
+
+
+
+
+Explanation
+1. Import Libraries: Pandas is used for data analysis and Matplotlib for creating graphs.
+
+2. Load Dataset: read_csv() loads the Superstore sales dataset.
+
+3. Display Data: head(), shape and columns display the first five records, dataset size and column names.
+
+4. Dataset Information: info() displays column names and data types.
+
+5. Check Missing Values: isnull().sum() identifies missing values.
+
+6. Clean Column Names: Converts column names into lowercase and replaces spaces with underscores.
+
+7. Group by Region: groupby() groups sales records according to region.
+
+8. Calculate Total Sales: sum() calculates total sales for each region.
+
+9. Bar Chart: Displays total sales of different regions.
+
+10. Pie Chart: Shows the percentage contribution of each region to total sales.
+
+11. Sort Sales: sort_values() arranges regions according to sales in descending order.
+
+12. Group by Region and Category: Calculates total sales for each category in every region.
+
+13. Pivot Table: pivot_table() creates a summary table showing sales by region and category.
+
+14. Grouped Bar Chart: Displays and compares category-wise sales across different regions.
+3. Conclusion
+Successfully performed data aggregation on the Superstore dataset to calculate and compare regional and category-wise sales using Pandas and Matplotlib.
+4. Important Functions
+Function	Purpose
+read_csv()	Load CSV dataset
+head()	Display first 5 records
+info()	Display dataset information
+isnull()	Check missing values
+groupby()	Group records
+sum()	Calculate total
+sort_values()	Sort values
+pivot_table()	Create summary table
+plot(kind="bar")	Create bar chart
+plot(kind="pie")	Create pie chart
+show()	Display graph
